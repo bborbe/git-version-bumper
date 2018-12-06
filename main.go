@@ -1,13 +1,12 @@
+// Copyright (c) 2018 Benjamin Borbe All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package main
 
 import (
 	"context"
-	flag "github.com/bborbe/flagenv"
 	"fmt"
-	"github.com/golang/glog"
-	"github.com/pkg/errors"
-	"gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"io/ioutil"
 	"os"
 	"regexp"
@@ -15,6 +14,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	flag "github.com/bborbe/flagenv"
+	"github.com/golang/glog"
+	"github.com/pkg/errors"
+	"gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
 
 func main() {
@@ -98,16 +103,6 @@ func (a *App) Run(ctx context.Context) error {
 		return errors.Wrap(err, "get worktree failed")
 	}
 
-	status, err := w.Status()
-	if err != nil {
-		return errors.Wrap(err, "get status failed")
-	}
-
-	clean := status.IsClean()
-	if !clean {
-		return errors.New("git repo is not clean")
-	}
-
 	_, err = r.Tag(version.String())
 	if err == nil {
 		return errors.New("tag already exists")
@@ -137,6 +132,7 @@ func (a *App) Run(ctx context.Context) error {
 		When:  time.Now(),
 	}
 	commit, err := w.Commit(a.Message, &git.CommitOptions{
+		All:    true,
 		Author: signature,
 	})
 
